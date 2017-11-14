@@ -10,6 +10,26 @@ const qMap = {      //translates param --> prop name
 }
 
 module.exports = {
+
+    login: function(req, res) {
+        req.session.user = req.body.username;
+        return res.json({"user": req.session.user});
+    },
+
+    logout: function(req, res){
+        req.session.destroy();
+        return res.sendStatus(200);
+    },
+
+    checkLogin: function(req, res){
+        if (req.session.user){
+            return res.json({"user": req.session.user});
+        }
+        else {
+            return res.sendStatus(400);
+        }
+    },
+
     getAllPolls: function (req, res) {
         Poll.find(
             {},
@@ -44,31 +64,36 @@ module.exports = {
 
     addNewPoll: function (req, res) {
         console.log(req.body);
-        Poll.create({
-            question: req.body.question,
-            q0: req.body.q0,
-            q1: req.body.q1,
-            q2: req.body.q2,
-            q3: req.body.q3,
-            author: req.body.author
-        },
-        (err, newpoll) => {
-            if (err) {
-                console.log(err);
-                return res.status(400).json(err);
-            }
-            else {
-                return res.sendStatus(200);
-            }
+        if (!req.session.user){
+            return res.redirect('/');
         }
-    )},
+        else {
+            Poll.create({
+                question: req.body.question,
+                q0: req.body.q0,
+                q1: req.body.q1,
+                q2: req.body.q2,
+                q3: req.body.q3,
+                author: req.session.user
+            },
+            (err, newpoll) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).json(err);
+                }
+                else {
+                    return res.sendStatus(200);
+                }
+            })
+        }
+    },
 
     modifyPoll: function (req, res) {
         Poll.find(
             {_id: req.params.id},
             (err, foundPoll) => {
                 if (err) {console.log(err)};
-                if (foundPoll.author != req.body.author){
+                if (foundPoll.author != req.session.user){
                     return res.sendStatus(400);
                 }
                 if (req.body.question){foundPoll.question = req.body.question};
@@ -91,7 +116,7 @@ module.exports = {
 
     deletePoll: function (req, res) {
         Poll.remove(
-            {_id: req.params.id, username: req.body.username},
+            {_id: req.params.id, username: req.session.user},
             (err) => {
                 if (err) {
                     console.log('DELETEPOLL ERROR', err);

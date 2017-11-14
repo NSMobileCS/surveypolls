@@ -14,8 +14,6 @@ app.use(
     session(
         {
             secret: '________DEV_SECRET=EASY_SECRET________',
-            resave: false,
-            saveUninitialized: false
         }
     )
 );
