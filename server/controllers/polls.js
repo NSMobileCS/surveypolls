@@ -12,18 +12,23 @@ const qMap = {      //translates param --> prop name
 module.exports = {
 
     login: function(req, res) {
+        console.log(req.body);
         req.session.user = req.body.username;
+        console.log(`polls ctrl'r login function called. session-user:
+        ${req.session.user}`);
         return res.json({"user": req.session.user});
     },
 
     logout: function(req, res){
-        req.session.destroy();
-        return res.sendStatus(200);
+        req.session = null;
+        res.status(200).json({"status":"OK"});
     },
 
     checkLogin: function(req, res){
+        console.log(`polls.checkLogin called session-user:
+        ${req.session.user}`);
         if (req.session.user){
-            return res.json({"user": req.session.user});
+            return res.json({'username': req.session.user});
         }
         else {
             return res.sendStatus(400);
@@ -34,29 +39,32 @@ module.exports = {
         Poll.find(
             {},
             (err, surveys) => {
-                // return res.json(surveys);
-                if (err) {console.log(err);}
-                let polls = [];
-                surveys.forEach(
-                    (survey) => {
-                        let poll = {
-                            question: survey.question,
-                            author: survey.author,
-                            id: survey._id
-                        }
-                        polls.push(poll);
-                    }
-                )
-                return res.json(polls);
+                console.log(surveys);
+                return res.json(surveys);
+                // if (err) {console.log(err);}
+                // let polls = [];
+                // surveys.forEach(
+                //     (survey) => {
+                //         let poll = {
+                //             question: survey.question,
+                //             author: survey.author,
+                //             id: survey._id
+                //         }
+                //         polls.push(poll);
+                //     }
+                // )
+                // return res.json(polls);
             }
         )
     },
 
     getOnePoll: function (req, res) {
+        console.log(`polls.js.getOnePoll: req.params.id: ${req.params.id}`)
         Poll.findOne(
             {_id: req.params.id},
             (err, foundPoll) => {
-                if (err) {console.log('getonepoll find err', err);}
+                // if (err) {console.log('getonepoll find err', err);}
+                console.log(JSON.stringify(foundPoll));
                 return res.json(foundPoll);
             }
         );

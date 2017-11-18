@@ -1,6 +1,7 @@
 const PORT = 6969;
 const express = require("express");
-const session = require("express-session");
+// const session = require("express-session");
+const cookieSession = require("cookie-session");
 const bodyParser = require("body-parser");
 const ejs = require('ejs');
 const path = require('path');
@@ -11,9 +12,11 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'ngClient/dist')));
 
 app.use(
-    session(
+    cookieSession(
         {
+            name: 'session',
             secret: '________DEV_SECRET=EASY_SECRET________',
+            maxAge: 86400000
         }
     )
 );
