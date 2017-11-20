@@ -3,10 +3,10 @@ const mongoose = require('mongoose');
 const Poll = mongoose.model("Poll");
 
 const qMap = {      //translates param --> prop name
-    0: "votes_q0",
-    1: "votes_q1",
-    2: "votes_q2",
-    3: "votes_q3"
+    '0': "votes_q0",
+    '1': "votes_q1",
+    '2': "votes_q2",
+    '3': "votes_q3"
 }
 
 module.exports = {
@@ -16,7 +16,7 @@ module.exports = {
         req.session.user = req.body.username;
         console.log(`polls ctrl'r login function called. session-user:
         ${req.session.user}`);
-        return res.json({"user": req.session.user});
+        return res.json({user: req.session.user});
     },
 
     logout: function(req, res){
@@ -25,35 +25,18 @@ module.exports = {
     },
 
     checkLogin: function(req, res){
-        console.log(`polls.checkLogin called session-user:
-        ${req.session.user}`);
-        if (req.session.user){
-            return res.json({'username': req.session.user});
-        }
-        else {
-            return res.sendStatus(400);
-        }
+        let user = req.session.user;
+        console.log(`polls.checkLogin called session-user: ${user}`);
+        return res.json({'username': user});
+
     },
 
     getAllPolls: function (req, res) {
         Poll.find(
             {},
             (err, surveys) => {
-                console.log(surveys);
+                // console.log(surveys);
                 return res.json(surveys);
-                // if (err) {console.log(err);}
-                // let polls = [];
-                // surveys.forEach(
-                //     (survey) => {
-                //         let poll = {
-                //             question: survey.question,
-                //             author: survey.author,
-                //             id: survey._id
-                //         }
-                //         polls.push(poll);
-                //     }
-                // )
-                // return res.json(polls);
             }
         )
     },
@@ -63,8 +46,9 @@ module.exports = {
         Poll.findOne(
             {_id: req.params.id},
             (err, foundPoll) => {
-                // if (err) {console.log('getonepoll find err', err);}
-                console.log(JSON.stringify(foundPoll));
+                if (err) {
+                    console.log(`server.polls.getOnePoll -> ERROR -> ${err}`);
+                }
                 return res.json(foundPoll);
             }
         );
@@ -136,6 +120,7 @@ module.exports = {
     },
 
     castVote: function (req, res) {
+        console.log(`server | polls.js.castVote | req.body: ${req.body}`);
         Poll.findOne(
             {_id: req.params.id},
             (err, foundPoll) => {
